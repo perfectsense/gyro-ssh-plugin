@@ -2,21 +2,67 @@
 plugins {
     id 'maven-publish'
     id 'java'
+    id 'checkstyle'
 }
 
 sourceCompatibility = 1.8
 
 defaultTasks 'build'
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        url "https://artifactory.psdops.com/public"
+    }
+}
+
+dependencies {
+    compile "gyro:gyro-core:0.5"
+
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'gyro.plugin'
             artifactId = 'ssh'
-            version = '0.5'
+            version = '0.14-SNAPSHOT'
 
             from components.java
         }
     }
+
+    repositories {
+        maven {
+            credentials {
+                username System.getenv("GRADLE_DEPLOY_USER")
+                password System.getenv("GRADLE_DEPLOY_PASSWORD")
+            }
+
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url "https://artifactory.psdops.com/gyro-snapshots"
+            } else {
+                url "https://artifactory.psdops.com/gyro-releases"
+            }
+        }
+    }
 }
 
+checkstyle {
+    toolVersion = '6.13'
+    configFile rootProject.file('config/checkstyle.xml')
+    checkstyleMain.enabled = false
+    checkstyleTest.enabled = false
+}
+
+task checkstyle(type: Checkstyle) {
+    configFile rootProject.file('config/checkstyle.xml')
+    source 'src'
+    include '**/*.java'
+    exclude '**/generated-src/**'
+
+    classpath = files()
+}
