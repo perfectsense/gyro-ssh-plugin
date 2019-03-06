@@ -23,6 +23,10 @@ repositories {
     maven {
         url "https://artifactory.psdops.com/public"
     }
+
+    maven {
+        url "https://artifactory.psdops.com/gyro-snapshots"
+    }
 }
 
 dependencies {
