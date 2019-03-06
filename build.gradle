@@ -5,9 +5,16 @@ plugins {
     id 'checkstyle'
 }
 
+version = '0.14-SNAPSHOT'
 sourceCompatibility = 1.8
 
-defaultTasks 'build'
+defaultTasks 'build', 'check'
+
+if (System.getenv("TRAVIS_BRANCH") == null) {
+    check.dependsOn 'publishToMavenLocal'
+} else {
+    check.dependsOn 'publish'
+}
 
 repositories {
     mavenLocal()
@@ -29,7 +36,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'gyro.plugin'
             artifactId = 'ssh'
-            version = '0.14-SNAPSHOT'
+            version = version
 
             from components.java
         }
