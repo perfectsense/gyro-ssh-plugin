@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile "gyro:core:0.14-SNAPSHOT"
+    compile "gyro:gyro-core:0.14-SNAPSHOT"
 
     checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
 }
@@ -38,8 +38,8 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'gyro.plugin'
-            artifactId = 'ssh'
+            groupId = 'gyro'
+            artifactId = 'gyro-ssh-plugin'
             version = version
 
             from components.java
