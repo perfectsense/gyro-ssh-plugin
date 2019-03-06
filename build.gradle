@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    compile "gyro:gyro-core:0.5"
+    compile "gyro:core:0.14-SNAPSHOT"
 
     checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
 }
