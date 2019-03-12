@@ -3,6 +3,7 @@ package gyro.plugin.ssh;
 import gyro.commands.AbstractConfigCommand;
 import gyro.core.BeamCore;
 import gyro.core.BeamInstance;
+import gyro.core.BeamInstances;
 import gyro.lang.Resource;
 import gyro.lang.ast.scope.RootScope;
 import gyro.lang.ast.scope.State;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
+
+    private List<BeamInstance> instances = new ArrayList<>();
 
     @Option(name = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
     public boolean refresh;
@@ -27,12 +30,9 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
 
         BeamCore.ui().write("\n");
 
-        List<BeamInstance> instances = new ArrayList<>();
         for (Resource resource : current.findAllResources()) {
             if (BeamInstance.class.isAssignableFrom(resource.getClass())) {
-                BeamInstance instance = (BeamInstance) resource;
-
-                instances.add(instance);
+                instances.add((BeamInstance) resource);
 
                 if (refresh()) {
                     BeamCore.ui().write("@|bold,blue Refreshing|@: @|yellow %s|@ -> %s...", resource.resourceType(), resource.resourceIdentifier());
@@ -41,6 +41,8 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
                     pending.getBackend().save(current);
                     BeamCore.ui().write("\n");
                 }
+            } else if (BeamInstances.class.isAssignableFrom(resource.getClass())) {
+                instances.addAll(((BeamInstances) resource).getInstances());
             }
         }
 
