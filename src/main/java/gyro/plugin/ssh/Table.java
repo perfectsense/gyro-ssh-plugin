@@ -1,10 +1,10 @@
 package gyro.plugin.ssh;
 
-import gyro.core.BeamUI;
-import com.psddev.dari.util.CompactMap;
-
 import java.util.Iterator;
 import java.util.Map;
+
+import com.psddev.dari.util.CompactMap;
+import gyro.core.GyroUI;
 
 public class Table {
 
@@ -15,7 +15,7 @@ public class Table {
         return this;
     }
 
-    private void writeSeparator(BeamUI ui, char first, char fill, char between, char last) {
+    private void writeSeparator(GyroUI ui, char first, char fill, char between, char last) {
         ui.write("%c%c", first, fill);
 
         for (Iterator<Integer> i = columns.values().iterator(); i.hasNext();) {
@@ -33,7 +33,7 @@ public class Table {
         ui.write("%c%c\n", fill, last);
     }
 
-    public void writeHeader(BeamUI ui) {
+    public void writeHeader(GyroUI ui) {
 
         writeSeparator(ui, '+', '-', '+', '+');
         ui.write("| ");
@@ -63,7 +63,7 @@ public class Table {
         writeSeparator(ui, '+', '-', '+', '+');
     }
 
-    public void writeRow(BeamUI ui, Object... cells) {
+    public void writeRow(GyroUI ui, Object... cells) {
         ui.write("| ");
 
         int cellsLength = cells != null ? cells.length : 0;
@@ -89,7 +89,7 @@ public class Table {
         ui.write(" |\n");
     }
 
-    public void writeFooter(BeamUI ui) {
+    public void writeFooter(GyroUI ui) {
         writeSeparator(ui, '+', '-', '+', '+');
     }
 }

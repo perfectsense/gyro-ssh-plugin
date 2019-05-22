@@ -1,11 +1,11 @@
 package gyro.plugin.ssh;
 
-import gyro.core.BeamCore;
-import gyro.core.BeamInstance;
-import com.psddev.dari.util.ObjectUtils;
-import io.airlift.airline.Command;
-
 import java.util.List;
+
+import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
+import gyro.core.GyroInstance;
+import io.airlift.airline.Command;
 
 @Command(name = "list", description = "List instances found in provided config file.")
 public class ListCommand extends AbstractInstanceCommand {
@@ -17,12 +17,12 @@ public class ListCommand extends AbstractInstanceCommand {
         .addColumn("Hostname", 65);
 
     @Override
-    public void doExecute(List<BeamInstance> instances) {
-        LIST_TABLE.writeHeader(BeamCore.ui());
+    public void doExecute(List<GyroInstance> instances) {
+        LIST_TABLE.writeHeader(GyroCore.ui());
 
-        for (BeamInstance instance : instances) {
+        for (GyroInstance instance : instances) {
             LIST_TABLE.writeRow(
-                BeamCore.ui(),
+                GyroCore.ui(),
                 instance.getInstanceId(),
                 instance.getState(),
                 instance.getLaunchDate(),
@@ -30,10 +30,10 @@ public class ListCommand extends AbstractInstanceCommand {
             );
         }
 
-        LIST_TABLE.writeFooter(BeamCore.ui());
+        LIST_TABLE.writeFooter(GyroCore.ui());
     }
 
-    public String getHostname(BeamInstance instance) {
+    public String getHostname(GyroInstance instance) {
         if (!ObjectUtils.isBlank(instance.getHostname())) {
             return instance.getHostname();
         }

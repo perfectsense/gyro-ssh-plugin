@@ -1,11 +1,5 @@
 package gyro.plugin.ssh;
 
-import gyro.core.BeamException;
-import gyro.core.BeamInstance;
-import io.airlift.airline.Option;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -14,6 +8,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import gyro.core.GyroException;
+import gyro.core.GyroInstance;
+import io.airlift.airline.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SshOptions {
 
@@ -31,7 +31,7 @@ public class SshOptions {
     @Option(name = {"-o", "--options"}, description = "Options pass to ssh -o option.")
     public String options;
 
-    public static List<String> createArgumentsList(SshOptions sshOptions, BeamInstance instance, String... additionalArguments) throws Exception {
+    public static List<String> createArgumentsList(SshOptions sshOptions, GyroInstance instance, String... additionalArguments) throws Exception {
         String hostname = instance.getPublicIpAddress();
 
         if (hostname == null) {
@@ -39,7 +39,7 @@ public class SshOptions {
         }
 
         if (hostname == null) {
-            throw new BeamException("Unable to determine instance's IP.");
+            throw new GyroException("Unable to determine instance's IP.");
         }
 
         List<String> arguments = new ArrayList<>();
@@ -76,7 +76,7 @@ public class SshOptions {
         return arguments;
     }
 
-    public static ProcessBuilder createProcessBuilder(SshOptions sshOptions, BeamInstance instance, String... additionalArguments) throws Exception {
+    public static ProcessBuilder createProcessBuilder(SshOptions sshOptions, GyroInstance instance, String... additionalArguments) throws Exception {
         return new ProcessBuilder(createArgumentsList(sshOptions, instance, additionalArguments));
     }
 
