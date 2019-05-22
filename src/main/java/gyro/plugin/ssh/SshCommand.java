@@ -1,18 +1,18 @@
 package gyro.plugin.ssh;
 
-import gyro.core.BeamCore;
-import gyro.core.BeamException;
-import gyro.core.BeamInstance;
-import com.psddev.dari.util.ObjectUtils;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import javax.inject.Inject;
+
+import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.GyroInstance;
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 
 @Command(name = "ssh", description = "SSH to a running instance.")
 public class SshCommand extends AbstractInstanceCommand {
@@ -49,15 +49,15 @@ public class SshCommand extends AbstractInstanceCommand {
     }
 
     @Override
-    public void doExecute(List<BeamInstance> instances) throws Exception {
+    public void doExecute(List<GyroInstance> instances) throws Exception {
         if (command != null) {
-            for (BeamInstance instance : instances) {
-                BeamCore.ui().write("Executing @|green %s|@ on @|yellow %s|@ %s...\n", command, instance.getHostname());
+            for (GyroInstance instance : instances) {
+                GyroCore.ui().write("Executing @|green %s|@ on @|yellow %s|@ %s...\n", command, instance.getHostname());
 
                 int exitCode = SshOptions.createProcessBuilder(sshOptions, instance, command).inheritIO().start().waitFor();
 
                 if (exitCode != 0 && !force) {
-                    BeamCore.ui().write("@|red Command failed!|@\n");
+                    GyroCore.ui().write("@|red Command failed!|@\n");
                     return;
                 }
             }
@@ -65,7 +65,7 @@ public class SshCommand extends AbstractInstanceCommand {
             String tmuxScript = "#!/bin/sh\n";
             tmuxScript += "SESSION=`tmux new-session -d -P`\n";
 
-            for (BeamInstance instance : instances) {
+            for (GyroInstance instance : instances) {
                 List<String> arguments = SshOptions.createArgumentsList(sshOptions, instance);
 
                 String sshCommand = "";
@@ -96,7 +96,7 @@ public class SshCommand extends AbstractInstanceCommand {
 
             new ProcessBuilder(temp.toString()).inheritIO().start().waitFor();
         } else if (instances.size() == 1) {
-            BeamInstance instance = instances.get(0);
+            GyroInstance instance = instances.get(0);
 
             SshOptions.createProcessBuilder(sshOptions, instance)
                 .inheritIO()
@@ -104,7 +104,7 @@ public class SshCommand extends AbstractInstanceCommand {
                 .waitFor();
 
         } else {
-            BeamInstance instance = pickInstance(instances);
+            GyroInstance instance = pickInstance(instances);
 
             SshOptions.createProcessBuilder(sshOptions, instance)
                 .inheritIO()
@@ -114,16 +114,16 @@ public class SshCommand extends AbstractInstanceCommand {
 
     }
 
-    static BeamInstance pickInstance(List<BeamInstance> instances) throws IOException {
-        SSH_TABLE.writeHeader(BeamCore.ui());
+    static GyroInstance pickInstance(List<GyroInstance> instances) throws IOException {
+        SSH_TABLE.writeHeader(GyroCore.ui());
 
         int index = 0;
 
-        for (BeamInstance instance : instances) {
+        for (GyroInstance instance : instances) {
             ++ index;
 
             SSH_TABLE.writeRow(
-                BeamCore.ui(),
+                GyroCore.ui(),
                 index,
                 instance.getInstanceId(),
                 instance.getName(),
@@ -131,12 +131,12 @@ public class SshCommand extends AbstractInstanceCommand {
                 instance.getHostname());
         }
 
-        SSH_TABLE.writeFooter(BeamCore.ui());
+        SSH_TABLE.writeFooter(GyroCore.ui());
 
-        int pick = ObjectUtils.to(int.class, BeamCore.ui().readText("\nMore than one instance matched your criteria, pick one to log into: "));
+        int pick = ObjectUtils.to(int.class, GyroCore.ui().readText("\nMore than one instance matched your criteria, pick one to log into: "));
 
         if (pick > instances.size() || pick <= 0) {
-            throw new BeamException(String.format("Must pick a number between 1 and %d!", instances.size()));
+            throw new GyroException(String.format("Must pick a number between 1 and %d!", instances.size()));
         }
 
         return instances.get(pick - 1);

@@ -1,19 +1,21 @@
-
 plugins {
+    id 'java-library'
     id 'maven-publish'
-    id 'java'
-    id 'checkstyle'
 }
 
-version = '0.15-SNAPSHOT'
-sourceCompatibility = 1.8
+if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
+    defaultTasks 'build', 'publish'
 
-defaultTasks 'build', 'check'
-
-if (System.getenv("TRAVIS_BRANCH") == null) {
-    check.dependsOn 'publishToMavenLocal'
 } else {
-    check.dependsOn 'publish'
+    defaultTasks 'build', 'publishToMavenLocal'
+}
+
+group = 'gyro'
+version = '0.15-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -21,27 +23,23 @@ repositories {
     mavenCentral()
 
     maven {
-        url "https://artifactory.psdops.com/public"
+        url 'https://artifactory.psdops.com/public'
     }
 
     maven {
-        url "https://artifactory.psdops.com/gyro-snapshots"
+        url 'https://artifactory.psdops.com/gyro-snapshots'
     }
 }
 
 dependencies {
-    compile "gyro:gyro-core:0.15-SNAPSHOT"
+    api 'gyro:gyro-core:0.15-SNAPSHOT'
 
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
+    implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'gyro'
-            artifactId = 'gyro-ssh-plugin'
-            version = version
-
             from components.java
         }
     }
@@ -49,31 +47,16 @@ publishing {
     repositories {
         maven {
             credentials {
-                username System.getenv("GRADLE_DEPLOY_USER")
-                password System.getenv("GRADLE_DEPLOY_PASSWORD")
+                username System.getenv('GRADLE_DEPLOY_USER')
+                password System.getenv('GRADLE_DEPLOY_PASSWORD')
             }
 
             if (project.version.endsWith('-SNAPSHOT')) {
-                url "https://artifactory.psdops.com/gyro-snapshots"
+                url 'https://artifactory.psdops.com/gyro-snapshots'
+
             } else {
-                url "https://artifactory.psdops.com/gyro-releases"
+                url 'https://artifactory.psdops.com/gyro-releases'
             }
         }
     }
-}
-
-checkstyle {
-    toolVersion = '6.13'
-    configFile rootProject.file('config/checkstyle.xml')
-    checkstyleMain.enabled = false
-    checkstyleTest.enabled = false
-}
-
-task checkstyle(type: Checkstyle) {
-    configFile rootProject.file('config/checkstyle.xml')
-    source 'src'
-    include '**/*.java'
-    exclude '**/generated-src/**'
-
-    classpath = files()
 }
