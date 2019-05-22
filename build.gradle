@@ -5,7 +5,7 @@ plugins {
     id 'checkstyle'
 }
 
-version = '0.14-SNAPSHOT'
+version = '0.15-SNAPSHOT'
 sourceCompatibility = 1.8
 
 defaultTasks 'build', 'check'
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile "gyro:gyro-core:0.14-SNAPSHOT"
+    compile "gyro:gyro-core:0.15-SNAPSHOT"
 
     checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
 }
