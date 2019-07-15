@@ -9,8 +9,8 @@ import gyro.core.GyroInstances;
 import gyro.core.command.AbstractConfigCommand;
 import gyro.core.resource.DiffableType;
 import gyro.core.resource.Resource;
-import gyro.core.resource.RootScope;
-import gyro.core.resource.State;
+import gyro.core.scope.RootScope;
+import gyro.core.scope.State;
 import io.airlift.airline.Option;
 
 public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
