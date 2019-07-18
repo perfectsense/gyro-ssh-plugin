@@ -7,6 +7,7 @@ import gyro.core.GyroCore;
 import gyro.core.GyroInstance;
 import gyro.core.GyroInstances;
 import gyro.core.command.AbstractConfigCommand;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.DiffableType;
 import gyro.core.resource.Resource;
 import gyro.core.scope.RootScope;
@@ -39,7 +40,7 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
                     GyroCore.ui().write(
                         "@|bold,blue Refreshing|@: @|yellow %s|@ -> %s...",
                         DiffableType.getInstance(resource.getClass()).getName(),
-                        resource.name());
+                        DiffableInternals.getName(resource));
 
                     resource.refresh();
                     GyroCore.ui().write("\n");
