@@ -52,7 +52,7 @@ public class SshCommand extends AbstractInstanceCommand {
     public void doExecute(List<GyroInstance> instances) throws Exception {
         if (command != null) {
             for (GyroInstance instance : instances) {
-                GyroCore.ui().write("Executing @|green %s|@ on @|yellow %s|@ %s...\n", command, instance.getHostname());
+                GyroCore.ui().write("Executing @|green %s|@ on @|yellow %s|@\n", command, instance.getHostname());
 
                 int exitCode = SshOptions.createProcessBuilder(sshOptions, instance, command).inheritIO().start().waitFor();
 
