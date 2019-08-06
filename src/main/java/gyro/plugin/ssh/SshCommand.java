@@ -158,11 +158,16 @@ public class SshCommand extends AbstractInstanceCommand {
                     DiffableScope scope = DiffableInternals.getScope((Diffable) instance);
                     if (scope.getSettings(JumpHostSettings.class).isJumpHost()) {
                         jumpHosts.add(instance);
+
+                        if (instance.getLocation().equals(gyroInstance.getLocation())) {
+                            jumpHost = instance;
+                            break;
+                        }
                     }
                 }
             }
 
-            if (!jumpHosts.isEmpty()) {
+            if (jumpHost == null && !jumpHosts.isEmpty()) {
                 jumpHost = jumpHosts.get(0);
             }
         }
