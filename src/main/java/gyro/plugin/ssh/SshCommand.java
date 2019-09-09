@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import com.psddev.dari.util.ObjectUtils;
@@ -148,30 +149,25 @@ public class SshCommand extends AbstractInstanceCommand {
         return instances.get(pick - 1);
     }
 
-    public static GyroInstance pickNearestJumpHost(List<GyroInstance> allInstances, GyroInstance gyroInstance, SshOptions options) throws Exception {
-        GyroInstance jumpHost = null;
-
-        if (options != null && options.useJumpHost) {
-            List<GyroInstance> jumpHosts = new ArrayList<>();
-            for (GyroInstance instance : allInstances) {
-                if (instance instanceof Diffable) {
-                    DiffableScope scope = DiffableInternals.getScope((Diffable) instance);
-                    if (scope.getSettings(JumpHostSettings.class).isJumpHost()) {
-                        jumpHosts.add(instance);
-
-                        if (instance.getLocation().equals(gyroInstance.getLocation())) {
-                            jumpHost = instance;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (jumpHost == null && !jumpHosts.isEmpty()) {
-                jumpHost = jumpHosts.get(0);
-            }
+    static GyroInstance pickNearestJumpHost(List<GyroInstance> allInstances, GyroInstance gyroInstance, SshOptions options) throws Exception {
+        GyroInstance jumpHost;
+        List<GyroInstance> jumpHosts = allInstances.stream().filter(SshCommand::isJumpHost).collect(Collectors.toList());
+        jumpHost = jumpHosts.stream().filter(o -> o.getLocation().equals(gyroInstance.getLocation())).findFirst().orElse(null);
+        if (jumpHost == null && !jumpHosts.isEmpty()) {
+            jumpHost = jumpHosts.get(0);
         }
 
         return jumpHost;
+    }
+
+    private static boolean isJumpHost(Object resource) {
+        if (resource instanceof GyroInstance) {
+            return DiffableInternals.getScope((Diffable) resource)
+                .getRootScope()
+                .getSettings(JumpHostSettings.class)
+                .getJumpHosts()
+                .contains(resource);
+        }
+        return false;
     }
 }

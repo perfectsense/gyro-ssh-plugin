@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gyro.core.GyroCore;
+import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -67,6 +68,10 @@ public class TunnelCommand extends AbstractInstanceCommand {
     }
 
     private ProcessBuilder tunnel(GyroInstance instance, GyroInstance jumpHost) {
+        if (jumpHost == null) {
+            throw new GyroException("No jump host found.");
+        }
+
         List<String> arguments = new ArrayList<>();
 
         String remoteHost = instance.getPrivateIpAddress();

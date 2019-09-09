@@ -1,23 +1,30 @@
 package gyro.plugin.ssh;
 
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.TypeReference;
+import gyro.core.GyroInstance;
+import gyro.core.Type;
 import gyro.core.directive.DirectiveProcessor;
 import gyro.core.scope.DiffableScope;
+import gyro.core.scope.RootScope;
 import gyro.lang.ast.block.DirectiveNode;
 
-public class JumpHostDirectiveProcessor extends DirectiveProcessor<DiffableScope> {
+import java.util.List;
+
+@Type("jump-host")
+public class JumpHostDirectiveProcessor extends DirectiveProcessor<RootScope> {
 
     @Override
-    public String getName() {
-        return "jump-host";
-    }
+    public void process(RootScope scope, DirectiveNode node) throws Exception {
+        validateArguments(node, 0, 0);
+        scope.getSettings(JumpHostSettings.class).setRegions(
+            ObjectUtils.to(
+                new TypeReference<List<String>>() {},
+                evaluateBody(scope, node).get("regions")));
 
-    @Override
-    public void process(DiffableScope scope, DirectiveNode node) throws Exception {
-        Boolean isJumpHost = getArgument(scope, node, Boolean.class, 0);
-        scope.getSettings(JumpHostSettings.class)
-                .setJumpHost(isJumpHost == null
-                        ? false
-                        : isJumpHost);
-        scope.getStateNodes().add(node);
+        scope.getSettings(JumpHostSettings.class).setJumpHosts(
+            ObjectUtils.to(
+                new TypeReference<List<GyroInstance>>() {},
+                evaluateBody(scope, node).get("jump-hosts")));
     }
 }
