@@ -121,7 +121,7 @@ public class SshCommand extends AbstractInstanceCommand {
 
     }
 
-    static GyroInstance pickInstance(List<GyroInstance> instances) throws IOException {
+    public static GyroInstance pickInstance(List<GyroInstance> instances) throws IOException {
         SSH_TABLE.writeHeader(GyroCore.ui());
 
         int index = 0;
@@ -149,7 +149,7 @@ public class SshCommand extends AbstractInstanceCommand {
         return instances.get(pick - 1);
     }
 
-    static GyroInstance pickNearestJumpHost(List<GyroInstance> allInstances, GyroInstance gyroInstance, SshOptions options) throws Exception {
+    public static GyroInstance pickNearestJumpHost(List<GyroInstance> allInstances, GyroInstance gyroInstance, SshOptions options) throws Exception {
         GyroInstance jumpHost;
         List<GyroInstance> jumpHosts = allInstances.stream().filter(SshCommand::isJumpHost).collect(Collectors.toList());
         jumpHost = jumpHosts.stream().filter(o -> o.getLocation().equals(gyroInstance.getLocation())).findFirst().orElse(null);
