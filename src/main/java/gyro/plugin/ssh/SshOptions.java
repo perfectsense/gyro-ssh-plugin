@@ -53,7 +53,9 @@ public class SshOptions {
         }
 
         if (hostname == null) {
-            throw new GyroException("Unable to determine instance's IP. Make sure you are on the VPN or specify -j to use a jump host.");
+            throw new GyroException(String.format(
+                "Unable to find a public IP for instance '%s'. Make sure you are on the VPN or specify -j to use a jump host.",
+                instance.getName()));
         }
 
         List<String> arguments = new ArrayList<>();
