@@ -24,9 +24,9 @@ public class SshCommand extends AbstractInstanceCommand {
 
     private static final Table SSH_TABLE = new Table()
         .addColumn("#", 3)
-        .addColumn("Location", 15)
-        .addColumn("Name", 40)
-        .addColumn("Hostname", 65);
+        .addColumn("Location", 10)
+        .addColumn("Name", 54)
+        .addColumn("Hostname", 55);
 
     @Option(name = { "-e", "--execute" }, description = "Command to execute on host(s).")
     public String command;
@@ -132,8 +132,8 @@ public class SshCommand extends AbstractInstanceCommand {
                 GyroCore.ui(),
                 index,
                 instance.getLocation(),
-                instance.getName(),
-                instance.getHostname());
+                reduceString(instance.getName(), 50),
+                !ObjectUtils.isBlank(instance.getHostname()) ? instance.getHostname() : instance.getPrivateIpAddress());
         }
 
         SSH_TABLE.writeFooter(GyroCore.ui());
@@ -167,5 +167,19 @@ public class SshCommand extends AbstractInstanceCommand {
                 .contains(resource);
         }
         return false;
+    }
+
+    private static String reduceString(String message, int max) {
+        if (message.length() <= max + 3) {
+            return message;
+        }
+
+        int overage = message.length() - max;
+        int start = overage / 2;
+        int end = start + overage;
+
+        return String.format("%s .. %s",
+            message.substring(0, start),
+            message.substring(end, message.length() - 1));
     }
 }
