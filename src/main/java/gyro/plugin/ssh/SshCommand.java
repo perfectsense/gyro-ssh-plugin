@@ -24,9 +24,8 @@ public class SshCommand extends AbstractInstanceCommand {
 
     private static final Table SSH_TABLE = new Table()
         .addColumn("#", 3)
-        .addColumn("Instance ID", 20)
-        .addColumn("Name", 35)
-        .addColumn("State", 12)
+        .addColumn("Location", 15)
+        .addColumn("Name", 40)
         .addColumn("Hostname", 65);
 
     @Option(name = { "-e", "--execute" }, description = "Command to execute on host(s).")
@@ -132,9 +131,8 @@ public class SshCommand extends AbstractInstanceCommand {
             SSH_TABLE.writeRow(
                 GyroCore.ui(),
                 index,
-                instance.getInstanceId(),
+                instance.getLocation(),
                 instance.getName(),
-                instance.getState(),
                 instance.getHostname());
         }
 
