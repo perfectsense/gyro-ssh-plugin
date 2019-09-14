@@ -2,6 +2,7 @@ package gyro.plugin.ssh;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import gyro.core.GyroCore;
 import gyro.core.GyroInstance;
@@ -10,6 +11,7 @@ import gyro.core.command.AbstractConfigCommand;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.DiffableType;
 import gyro.core.resource.Resource;
+import gyro.core.scope.FileScope;
 import gyro.core.scope.RootScope;
 import gyro.core.scope.State;
 import io.airlift.airline.Option;
@@ -25,6 +27,10 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
         return refresh;
     }
 
+    public AbstractInstanceCommand() {
+        skipRefresh = true;
+    }
+
     public abstract void doExecute(List<GyroInstance> instances) throws Exception;
 
     @Override
@@ -32,7 +38,20 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
 
         GyroCore.ui().write("\n");
 
+        List<FileScope> fileScopes = current.getFileScopes()
+            .stream()
+            .filter(f -> current.getLoadFiles().contains(f.getFile()))
+            .collect(Collectors.toList());
+
+        if (fileScopes.isEmpty()) {
+            fileScopes = current.getFileScopes();
+        }
+
         for (Resource resource : current.findResources()) {
+            if (!fileScopes.contains(DiffableInternals.getScope(resource).getFileScope())) {
+                continue;
+            }
+
             if (GyroInstance.class.isAssignableFrom(resource.getClass())) {
                 instances.add((GyroInstance) resource);
 
