@@ -8,9 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.DiffableInternals;
 import io.airlift.airline.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +24,12 @@ import org.slf4j.LoggerFactory;
 public class SshOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SshOptions.class);
+
+    private static final Table SSH_TABLE = new Table()
+        .addColumn("#", 3)
+        .addColumn("Location", 10)
+        .addColumn("Name", 54)
+        .addColumn("Hostname", 55);
 
     @Option(name = {"-u", "--user"}, description = "User to log in as.")
     public String user;
@@ -34,10 +46,29 @@ public class SshOptions {
     @Option(name = { "-j", "--jumphost" }, description = "Jump through jump host.")
     public boolean useJumpHost;
 
-    public static List<String> createArgumentsList(SshOptions sshOptions, GyroInstance instance, GyroInstance jumpHost, String... additionalArguments) throws Exception {
+    private List<GyroInstance> instances = new ArrayList<>();
+    private List<GyroInstance> scopedInstances = new ArrayList<>();
+
+    public List<GyroInstance> getInstances() {
+        return instances;
+    }
+
+    public void setInstances(List<GyroInstance> instances) {
+        this.instances = instances;
+    }
+
+    public List<GyroInstance> getScopedInstances() {
+        return scopedInstances;
+    }
+
+    public void setScopedInstances(List<GyroInstance> scopedInstances) {
+        this.scopedInstances = scopedInstances;
+    }
+
+    public List<String> createArgumentsList(GyroInstance instance, String... additionalArguments) throws Exception {
         String hostname = instance.getPrivateIpAddress();
 
-        if (sshOptions == null || !sshOptions.useJumpHost) {
+        if (!useJumpHost) {
             try {
                 InetAddress inet = InetAddress.getByName(hostname);
                 if (!hasService(inet, 22)) {
@@ -48,45 +79,45 @@ public class SshOptions {
             }
         }
 
-        if (sshOptions != null && sshOptions.useJumpHost && jumpHost == null) {
-            throw new GyroException("A jump host is required to use -j. No jump host could be found.");
+        if (hostname == null) {
+            hostname = instance.getPrivateIpAddress();
+            useJumpHost = true;
         }
 
-        if (hostname == null) {
-            throw new GyroException(String.format(
-                "Unable to find a public IP for instance '%s'. Make sure you are on the VPN or specify -j to use a jump host.",
-                instance.getName()));
+        GyroInstance jumpHost = null;
+        if (useJumpHost) {
+            jumpHost = pickNearestJumpHost(instance);
         }
 
         List<String> arguments = new ArrayList<>();
 
         arguments.add("ssh");
 
-        if (sshOptions != null && sshOptions.useJumpHost) {
+        if (useJumpHost) {
             arguments.add("-o");
             arguments.add("ForwardAgent yes");
 
-            sshOptions.quiet = true;
+            quiet = true;
         }
 
-        if (sshOptions != null && sshOptions.keyfile != null) {
+        if (keyfile != null) {
             arguments.add("-i");
-            arguments.add(sshOptions.keyfile);
+            arguments.add(keyfile);
         }
 
-        if (sshOptions != null && sshOptions.useJumpHost) {
+        if (useJumpHost) {
             String KEY_FILE = "";
             String REMOTE_HOST = jumpHost.getPublicIpAddress();
             if (REMOTE_HOST == null) {
                 throw new GyroException("Unable to determine the public IP address of the jump host.");
             }
 
-            if (sshOptions.user != null) {
-                REMOTE_HOST = String.format("%s@%s", sshOptions.user, jumpHost.getPublicIpAddress());
+            if (user != null) {
+                REMOTE_HOST = String.format("%s@%s", user, jumpHost.getPublicIpAddress());
             }
 
-            if (sshOptions.keyfile != null) {
-                KEY_FILE = "-i " + sshOptions.keyfile;
+            if (keyfile != null) {
+                KEY_FILE = "-i " + keyfile;
             }
 
             arguments.add("-o");
@@ -98,19 +129,19 @@ public class SshOptions {
             arguments.add("StrictHostKeychecking=no");
         }
 
-        if (sshOptions != null && sshOptions.quiet) {
+        if (quiet) {
             arguments.add("-q");
         }
 
-        if (sshOptions != null && sshOptions.user != null) {
-            arguments.add(String.format("%s@%s", sshOptions.user, hostname));
+        if (user != null) {
+            arguments.add(String.format("%s@%s", user, hostname));
 
         } else {
             arguments.add(hostname);
         }
 
-        if (sshOptions != null && sshOptions.options != null) {
-            for (String option : Arrays.asList(sshOptions.options.split(","))) {
+        if (options != null) {
+            for (String option : Arrays.asList(options.split(","))) {
                 arguments.add("-o");
                 arguments.add(option);
             }
@@ -123,11 +154,11 @@ public class SshOptions {
         return arguments;
     }
 
-    public static ProcessBuilder createProcessBuilder(SshOptions sshOptions, GyroInstance instance, GyroInstance jumpHost, String... additionalArguments) throws Exception {
-        return new ProcessBuilder(createArgumentsList(sshOptions, instance, jumpHost, additionalArguments));
+    public ProcessBuilder createProcessBuilder(GyroInstance instance, String... additionalArguments) throws Exception {
+        return new ProcessBuilder(createArgumentsList(instance, additionalArguments));
     }
 
-    public static boolean hasService(InetAddress host, int port) {
+    public boolean hasService(InetAddress host, int port) {
         Socket sock = new Socket();
 
         try {
@@ -157,4 +188,77 @@ public class SshOptions {
 
         return false;
     }
+
+    public GyroInstance pickInstance(List<GyroInstance> instances) throws IOException {
+        SSH_TABLE.writeHeader(GyroCore.ui());
+
+        int index = 0;
+
+        for (GyroInstance instance : instances) {
+            ++ index;
+
+            SSH_TABLE.writeRow(
+                GyroCore.ui(),
+                index,
+                instance.getLocation(),
+                reduceString(instance.getName(), 50),
+                !ObjectUtils.isBlank(instance.getHostname()) ? instance.getHostname() : instance.getPrivateIpAddress());
+        }
+
+        SSH_TABLE.writeFooter(GyroCore.ui());
+
+        int pick = ObjectUtils.to(int.class, GyroCore.ui().readText("\nMore than one instance matched your criteria, pick one to log into: "));
+
+        if (pick > instances.size() || pick <= 0) {
+            throw new GyroException(String.format("Must pick a number between 1 and %d!", instances.size()));
+        }
+
+        return instances.get(pick - 1);
+    }
+
+    public List<GyroInstance> jumpHosts() {
+        return getInstances()
+            .stream()
+            .filter(SshOptions::isJumpHost)
+            .collect(Collectors.toList());
+    }
+
+    public GyroInstance randomJumpHost() {
+        return jumpHosts().stream().findFirst()
+            .orElseThrow(() -> new GyroException("Unable to find a jump host."));
+    }
+
+    public GyroInstance pickNearestJumpHost(GyroInstance gyroInstance) throws Exception {
+        return jumpHosts()
+            .stream()
+            .filter(o -> o.getLocation().equals(gyroInstance.getLocation()))
+            .findFirst()
+            .orElse(randomJumpHost());
+    }
+
+    private static boolean isJumpHost(Object resource) {
+        if (resource instanceof GyroInstance) {
+            return DiffableInternals.getScope((Diffable) resource)
+                .getRootScope()
+                .getSettings(JumpHostSettings.class)
+                .getJumpHosts()
+                .contains(resource);
+        }
+        return false;
+    }
+
+    private static String reduceString(String message, int max) {
+        if (message.length() <= max + 3) {
+            return message;
+        }
+
+        int overage = message.length() - max;
+        int start = overage / 2;
+        int end = start + overage;
+
+        return String.format("%s .. %s",
+            message.substring(0, start),
+            message.substring(end, message.length() - 1));
+    }
+
 }

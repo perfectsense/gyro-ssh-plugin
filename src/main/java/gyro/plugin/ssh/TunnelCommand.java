@@ -38,21 +38,23 @@ public class TunnelCommand extends AbstractInstanceCommand {
     public SshOptions sshOptions;
 
     @Override
-    public void doExecute(List<GyroInstance> instances) throws Exception {
+    public void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) throws Exception {
         GyroInstance instance = null;
 
         if (sshOptions == null) {
             sshOptions = new SshOptions();
         }
         sshOptions.useJumpHost = true;
+        sshOptions.setInstances(instances);
+        sshOptions.setScopedInstances(scopedInstances);
 
         if (instances.size() > 1) {
-            instance = SshCommand.pickInstance(instances);
+            instance = sshOptions.pickInstance(instances);
         } else if (instances.size() != 0) {
             instance = instances.get(0);
         }
 
-        GyroInstance jumpHost = SshCommand.pickNearestJumpHost(instances, instance, sshOptions);
+        GyroInstance jumpHost = sshOptions.pickNearestJumpHost(instance);
         ProcessBuilder processBuilder = tunnel(instance, jumpHost);
 
         GyroCore.ui().write("Tunneling local port %s to %s on %s\n\n", localPort, remotePort, instance.getInstanceId());

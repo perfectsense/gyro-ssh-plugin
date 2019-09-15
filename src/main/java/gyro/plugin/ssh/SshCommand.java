@@ -22,12 +22,6 @@ import io.airlift.airline.Option;
 @Command(name = "ssh", description = "SSH to a running instance.")
 public class SshCommand extends AbstractInstanceCommand {
 
-    private static final Table SSH_TABLE = new Table()
-        .addColumn("#", 3)
-        .addColumn("Location", 10)
-        .addColumn("Name", 54)
-        .addColumn("Hostname", 55);
-
     @Option(name = { "-e", "--execute" }, description = "Command to execute on host(s).")
     public String command;
 
@@ -53,12 +47,22 @@ public class SshCommand extends AbstractInstanceCommand {
     }
 
     @Override
-    public void doExecute(List<GyroInstance> instances) throws Exception {
+    public void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) throws Exception {
+        if (sshOptions == null) {
+            sshOptions = new SshOptions();
+        }
+
+        sshOptions.setInstances(instances);
+        sshOptions.setScopedInstances(scopedInstances);
+
         if (command != null) {
             for (GyroInstance instance : instances) {
                 GyroCore.ui().write("Executing @|green %s|@ on @|yellow %s|@\n", command, instance.getHostname());
 
-                int exitCode = SshOptions.createProcessBuilder(sshOptions, instance, pickNearestJumpHost(instances, instance, sshOptions), command).inheritIO().start().waitFor();
+                int exitCode = sshOptions.createProcessBuilder(instance, command)
+                    .inheritIO()
+                    .start()
+                    .waitFor();
 
                 if (exitCode != 0 && !force) {
                     GyroCore.ui().write("@|red Command failed!|@\n");
@@ -70,7 +74,7 @@ public class SshCommand extends AbstractInstanceCommand {
             tmuxScript += "SESSION=`tmux new-session -d -P`\n";
 
             for (GyroInstance instance : instances) {
-                List<String> arguments = SshOptions.createArgumentsList(sshOptions, instance, pickNearestJumpHost(instances, instance, sshOptions));
+                List<String> arguments = sshOptions.createArgumentsList(instance);
 
                 String sshCommand = "";
                 for (String arg : arguments) {
@@ -99,20 +103,17 @@ public class SshCommand extends AbstractInstanceCommand {
             out.close();
 
             new ProcessBuilder(temp.toString()).inheritIO().start().waitFor();
-        } else if (instances.size() == 1) {
-            GyroInstance instance = instances.get(0);
-            GyroInstance jumpHost = sshOptions != null && sshOptions.useJumpHost ? pickNearestJumpHost(instances, instance, sshOptions) : null;
-
-            SshOptions.createProcessBuilder(sshOptions, instance, jumpHost)
+        } else if (scopedInstances.size() == 1) {
+            GyroInstance instance = scopedInstances.get(0);
+            sshOptions.createProcessBuilder(instance)
                 .inheritIO()
                 .start()
                 .waitFor();
 
         } else {
-            GyroInstance instance = pickInstance(instances);
-            GyroInstance jumpHost = sshOptions != null && sshOptions.useJumpHost ? pickNearestJumpHost(instances, instance, sshOptions) : null;
+            GyroInstance instance = sshOptions.pickInstance(scopedInstances);
 
-            SshOptions.createProcessBuilder(sshOptions, instance, jumpHost)
+            sshOptions.createProcessBuilder(instance)
                 .inheritIO()
                 .start()
                 .waitFor();
@@ -120,66 +121,4 @@ public class SshCommand extends AbstractInstanceCommand {
 
     }
 
-    public static GyroInstance pickInstance(List<GyroInstance> instances) throws IOException {
-        SSH_TABLE.writeHeader(GyroCore.ui());
-
-        int index = 0;
-
-        for (GyroInstance instance : instances) {
-            ++ index;
-
-            SSH_TABLE.writeRow(
-                GyroCore.ui(),
-                index,
-                instance.getLocation(),
-                reduceString(instance.getName(), 50),
-                !ObjectUtils.isBlank(instance.getHostname()) ? instance.getHostname() : instance.getPrivateIpAddress());
-        }
-
-        SSH_TABLE.writeFooter(GyroCore.ui());
-
-        int pick = ObjectUtils.to(int.class, GyroCore.ui().readText("\nMore than one instance matched your criteria, pick one to log into: "));
-
-        if (pick > instances.size() || pick <= 0) {
-            throw new GyroException(String.format("Must pick a number between 1 and %d!", instances.size()));
-        }
-
-        return instances.get(pick - 1);
-    }
-
-    public static GyroInstance pickNearestJumpHost(List<GyroInstance> allInstances, GyroInstance gyroInstance, SshOptions options) throws Exception {
-        GyroInstance jumpHost;
-        List<GyroInstance> jumpHosts = allInstances.stream().filter(SshCommand::isJumpHost).collect(Collectors.toList());
-        jumpHost = jumpHosts.stream().filter(o -> o.getLocation().equals(gyroInstance.getLocation())).findFirst().orElse(null);
-        if (jumpHost == null && !jumpHosts.isEmpty()) {
-            jumpHost = jumpHosts.get(0);
-        }
-
-        return jumpHost;
-    }
-
-    private static boolean isJumpHost(Object resource) {
-        if (resource instanceof GyroInstance) {
-            return DiffableInternals.getScope((Diffable) resource)
-                .getRootScope()
-                .getSettings(JumpHostSettings.class)
-                .getJumpHosts()
-                .contains(resource);
-        }
-        return false;
-    }
-
-    private static String reduceString(String message, int max) {
-        if (message.length() <= max + 3) {
-            return message;
-        }
-
-        int overage = message.length() - max;
-        int start = overage / 2;
-        int end = start + overage;
-
-        return String.format("%s .. %s",
-            message.substring(0, start),
-            message.substring(end, message.length() - 1));
-    }
 }

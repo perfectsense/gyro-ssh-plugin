@@ -19,6 +19,7 @@ import io.airlift.airline.Option;
 public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
 
     private List<GyroInstance> instances = new ArrayList<>();
+    private List<GyroInstance> scopedInstances = new ArrayList<>();
 
     @Option(name = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
     public boolean refresh;
@@ -31,7 +32,7 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
         skipRefresh = true;
     }
 
-    public abstract void doExecute(List<GyroInstance> instances) throws Exception;
+    public abstract void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) throws Exception;
 
     @Override
     protected void doExecute(RootScope current, RootScope pending, State state) throws Exception {
@@ -48,12 +49,14 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
         }
 
         for (Resource resource : current.findResources()) {
-            if (!fileScopes.contains(DiffableInternals.getScope(resource).getFileScope())) {
-                continue;
-            }
+            boolean scoped = fileScopes.contains(DiffableInternals.getScope(resource).getFileScope());
 
             if (GyroInstance.class.isAssignableFrom(resource.getClass())) {
                 instances.add((GyroInstance) resource);
+
+                if (scoped) {
+                    scopedInstances.add((GyroInstance) resource);
+                }
 
                 if (refresh()) {
                     GyroCore.ui().write(
@@ -66,6 +69,10 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
                 }
             } else if (GyroInstances.class.isAssignableFrom(resource.getClass())) {
                 instances.addAll(((GyroInstances) resource).getInstances());
+
+                if (scoped) {
+                    scopedInstances.addAll(((GyroInstances) resource).getInstances());
+                }
             }
         }
 
@@ -74,7 +81,7 @@ public abstract class AbstractInstanceCommand extends AbstractConfigCommand {
             return;
         }
 
-        doExecute(instances);
+        doExecute(instances, scopedInstances);
     }
 
 }
