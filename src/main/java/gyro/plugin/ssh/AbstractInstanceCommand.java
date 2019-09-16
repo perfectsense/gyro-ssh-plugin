@@ -35,6 +35,8 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
     @Arguments
     private List<String> files;
 
+    protected RootScope current;
+
     public boolean refresh() {
         return refresh;
     }
@@ -76,7 +78,7 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
             }
         }
 
-        RootScope current = new RootScope(
+        current = new RootScope(
             "../../" + GyroCore.INIT_FILE,
             new LocalFileBackend(rootDir.resolve(".gyro/state")),
             null,
