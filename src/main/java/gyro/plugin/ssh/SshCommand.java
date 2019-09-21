@@ -47,13 +47,13 @@ public class SshCommand extends AbstractInstanceCommand {
     }
 
     @Override
-    public void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) throws Exception {
+    public void doExecute(List<GyroInstance> instances) throws Exception {
         if (sshOptions == null) {
             sshOptions = new SshOptions();
         }
 
         sshOptions.setInstances(instances);
-        sshOptions.setScopedInstances(scopedInstances);
+        sshOptions.setJumpHosts(current.getSettings(JumpHostSettings.class).getJumpHosts());
 
         if (command != null) {
             for (GyroInstance instance : instances) {
@@ -103,15 +103,15 @@ public class SshCommand extends AbstractInstanceCommand {
             out.close();
 
             new ProcessBuilder(temp.toString()).inheritIO().start().waitFor();
-        } else if (scopedInstances.size() == 1) {
-            GyroInstance instance = scopedInstances.get(0);
+        } else if (instances.size() == 1) {
+            GyroInstance instance = instances.get(0);
             sshOptions.createProcessBuilder(instance)
                 .inheritIO()
                 .start()
                 .waitFor();
 
         } else {
-            GyroInstance instance = sshOptions.pickInstance(scopedInstances);
+            GyroInstance instance = sshOptions.pickInstance(instances);
 
             sshOptions.createProcessBuilder(instance)
                 .inheritIO()

@@ -46,8 +46,16 @@ public class SshOptions {
     @Option(name = { "-j", "--jumphost" }, description = "Jump through jump host.")
     public boolean useJumpHost;
 
+    private List<GyroInstance> jumpHosts = new ArrayList<>();
     private List<GyroInstance> instances = new ArrayList<>();
-    private List<GyroInstance> scopedInstances = new ArrayList<>();
+
+    public List<GyroInstance> getJumpHosts() {
+        return jumpHosts;
+    }
+
+    public void setJumpHosts(List<GyroInstance> jumpHosts) {
+        this.jumpHosts = jumpHosts;
+    }
 
     public List<GyroInstance> getInstances() {
         return instances;
@@ -55,14 +63,6 @@ public class SshOptions {
 
     public void setInstances(List<GyroInstance> instances) {
         this.instances = instances;
-    }
-
-    public List<GyroInstance> getScopedInstances() {
-        return scopedInstances;
-    }
-
-    public void setScopedInstances(List<GyroInstance> scopedInstances) {
-        this.scopedInstances = scopedInstances;
     }
 
     public List<String> createArgumentsList(GyroInstance instance, String... additionalArguments) throws Exception {
@@ -216,35 +216,17 @@ public class SshOptions {
         return instances.get(pick - 1);
     }
 
-    public List<GyroInstance> jumpHosts() {
-        return getInstances()
-            .stream()
-            .filter(SshOptions::isJumpHost)
-            .collect(Collectors.toList());
-    }
-
     public GyroInstance randomJumpHost() {
-        return jumpHosts().stream().findFirst()
+        return getJumpHosts().stream().findFirst()
             .orElseThrow(() -> new GyroException("Unable to find a jump host."));
     }
 
     public GyroInstance pickNearestJumpHost(GyroInstance gyroInstance) throws Exception {
-        return jumpHosts()
+        return getJumpHosts()
             .stream()
             .filter(o -> o.getLocation().equals(gyroInstance.getLocation()))
             .findFirst()
             .orElse(randomJumpHost());
-    }
-
-    private static boolean isJumpHost(Object resource) {
-        if (resource instanceof GyroInstance) {
-            return DiffableInternals.getScope((Diffable) resource)
-                .getRootScope()
-                .getSettings(JumpHostSettings.class)
-                .getJumpHosts()
-                .contains(resource);
-        }
-        return false;
     }
 
     private static String reduceString(String message, int max) {

@@ -17,10 +17,10 @@ public class ListCommand extends AbstractInstanceCommand {
         .addColumn("Hostname", 65);
 
     @Override
-    public void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) {
+    public void doExecute(List<GyroInstance> instances) {
         LIST_TABLE.writeHeader(GyroCore.ui());
 
-        for (GyroInstance instance : scopedInstances) {
+        for (GyroInstance instance : instances) {
             LIST_TABLE.writeRow(
                 GyroCore.ui(),
                 instance.getInstanceId(),

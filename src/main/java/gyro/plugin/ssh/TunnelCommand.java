@@ -38,15 +38,15 @@ public class TunnelCommand extends AbstractInstanceCommand {
     public SshOptions sshOptions;
 
     @Override
-    public void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) throws Exception {
+    public void doExecute(List<GyroInstance> instances) throws Exception {
         GyroInstance instance = null;
 
         if (sshOptions == null) {
             sshOptions = new SshOptions();
         }
         sshOptions.useJumpHost = true;
+        sshOptions.setJumpHosts(current.getSettings(JumpHostSettings.class).getJumpHosts());
         sshOptions.setInstances(instances);
-        sshOptions.setScopedInstances(scopedInstances);
 
         if (instances.size() > 1) {
             instance = sshOptions.pickInstance(instances);

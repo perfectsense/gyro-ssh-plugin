@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractInstanceCommand extends AbstractCommand {
 
     private List<GyroInstance> instances = new ArrayList<>();
-    private List<GyroInstance> scopedInstances = new ArrayList<>();
 
     @Option(name = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
     public boolean refresh;
@@ -41,7 +40,7 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
         return refresh;
     }
 
-    public abstract void doExecute(List<GyroInstance> instances, List<GyroInstance> scopedInstances) throws Exception;
+    public abstract void doExecute(List<GyroInstance> instances) throws Exception;
 
     @Override
     protected void doExecute() throws Exception {
@@ -101,10 +100,8 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
             boolean scoped = fileScopes.contains(DiffableInternals.getScope(resource).getFileScope());
 
             if (GyroInstance.class.isAssignableFrom(resource.getClass())) {
-                instances.add((GyroInstance) resource);
-
                 if (scoped) {
-                    scopedInstances.add((GyroInstance) resource);
+                    instances.add((GyroInstance) resource);
                 }
 
                 if (refresh()) {
@@ -117,10 +114,8 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
                     GyroCore.ui().write("\n");
                 }
             } else if (GyroInstances.class.isAssignableFrom(resource.getClass())) {
-                instances.addAll(((GyroInstances) resource).getInstances());
-
                 if (scoped) {
-                    scopedInstances.addAll(((GyroInstances) resource).getInstances());
+                    instances.addAll(((GyroInstances) resource).getInstances());
                 }
             }
         }
@@ -130,7 +125,7 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
             return;
         }
 
-        doExecute(instances, scopedInstances);
+        doExecute(instances);
     }
 
 }
