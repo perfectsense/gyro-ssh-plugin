@@ -158,7 +158,7 @@ public class SshOptions {
         return new ProcessBuilder(createArgumentsList(instance, additionalArguments));
     }
 
-    public boolean hasService(InetAddress host, int port) {
+    public static boolean hasService(InetAddress host, int port) {
         Socket sock = new Socket();
 
         try {
