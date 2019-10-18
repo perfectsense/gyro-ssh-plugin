@@ -73,7 +73,7 @@ public class TunnelCommand extends AbstractInstanceCommand {
         GyroInstance jumpHost = sshOptions.pickNearestJumpHost(instance);
         ProcessBuilder processBuilder = tunnel(instance, jumpHost);
 
-        GyroCore.ui().write("Tunneling local port %s to %s on %s\n\n", localPort, remotePort, instance.getInstanceId());
+        GyroCore.ui().write("Tunneling local port %s to %s on %s\n\n", localPort, remotePort, instance.getGyroInstanceId());
         GyroCore.ui().write("http://localhost:%s\n", localPort);
 
         Process process = processBuilder.inheritIO().start();
@@ -92,8 +92,8 @@ public class TunnelCommand extends AbstractInstanceCommand {
 
         List<String> arguments = new ArrayList<>();
 
-        String remoteHost = instance.getPrivateIpAddress();
-        String jumpHostIp = jumpHost.getPublicIpAddress();
+        String remoteHost = instance.getGyroInstancePrivateIpAddress();
+        String jumpHostIp = jumpHost.getGyroInstancePublicIpAddress();
 
         if (localPort == null) {
             localPort = 4000;
@@ -121,7 +121,7 @@ public class TunnelCommand extends AbstractInstanceCommand {
         arguments.add("ExitOnForwardFailure=yes");
 
         if (sshOptions != null && sshOptions.user != null) {
-            jumpHostIp = String.format("%s@%s", sshOptions.user, jumpHost.getPublicIpAddress());
+            jumpHostIp = String.format("%s@%s", sshOptions.user, jumpHost.getGyroInstancePublicIpAddress());
         }
         arguments.add(jumpHostIp);
 
