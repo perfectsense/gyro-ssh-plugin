@@ -39,9 +39,9 @@ public class ListCommand extends AbstractInstanceCommand {
         for (GyroInstance instance : instances) {
             LIST_TABLE.writeRow(
                 GyroCore.ui(),
-                instance.getInstanceId(),
-                instance.getState(),
-                instance.getLaunchDate(),
+                instance.getGyroInstanceId(),
+                instance.getGyroInstanceState(),
+                instance.getGyroInstanceLaunchDate(),
                 getHostname(instance)
             );
         }
@@ -50,16 +50,16 @@ public class ListCommand extends AbstractInstanceCommand {
     }
 
     public String getHostname(GyroInstance instance) {
-        if (!ObjectUtils.isBlank(instance.getHostname())) {
-            return instance.getHostname();
+        if (!ObjectUtils.isBlank(instance.getGyroInstanceHostname())) {
+            return instance.getGyroInstanceHostname();
         }
 
-        if (!ObjectUtils.isBlank(instance.getPublicIpAddress())) {
-            return instance.getPublicIpAddress();
+        if (!ObjectUtils.isBlank(instance.getGyroInstancePublicIpAddress())) {
+            return instance.getGyroInstancePublicIpAddress();
         }
 
-        if (!ObjectUtils.isBlank(instance.getPrivateIpAddress())) {
-            return instance.getPrivateIpAddress();
+        if (!ObjectUtils.isBlank(instance.getGyroInstancePrivateIpAddress())) {
+            return instance.getGyroInstancePrivateIpAddress();
         }
 
         return "";

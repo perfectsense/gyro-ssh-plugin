@@ -73,7 +73,7 @@ public class SshCommand extends AbstractInstanceCommand {
 
         if (command != null) {
             for (GyroInstance instance : instances) {
-                GyroCore.ui().write("Executing @|green %s|@ on @|yellow %s|@\n", command, instance.getHostname());
+                GyroCore.ui().write("Executing @|green %s|@ on @|yellow %s|@\n", command, instance.getGyroInstanceHostname());
 
                 int exitCode = sshOptions.createProcessBuilder(instance, command)
                     .inheritIO()
@@ -103,7 +103,7 @@ public class SshCommand extends AbstractInstanceCommand {
                     sshCommand += " ";
                 }
 
-                tmuxScript += "tmux new-window -t ${SESSION}" + " -n " + instance.getInstanceId() + " -- " + sshCommand + "\n";
+                tmuxScript += "tmux new-window -t ${SESSION}" + " -n " + instance.getGyroInstanceId() + " -- " + sshCommand + "\n";
             }
 
             tmuxScript += "tmux kill-window -t ${SESSION}1\n";

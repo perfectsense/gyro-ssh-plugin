@@ -82,21 +82,21 @@ public class SshOptions {
     }
 
     public List<String> createArgumentsList(GyroInstance instance, String... additionalArguments) throws Exception {
-        String hostname = instance.getPrivateIpAddress();
+        String hostname = instance.getGyroInstancePrivateIpAddress();
 
         if (!useJumpHost) {
             try {
                 InetAddress inet = InetAddress.getByName(hostname);
                 if (!hasService(inet, 22)) {
-                    hostname = instance.getPublicIpAddress();
+                    hostname = instance.getGyroInstancePublicIpAddress();
                 }
             } catch (Exception ex) {
-                hostname = instance.getPublicIpAddress();
+                hostname = instance.getGyroInstancePublicIpAddress();
             }
         }
 
         if (hostname == null) {
-            hostname = instance.getPrivateIpAddress();
+            hostname = instance.getGyroInstancePrivateIpAddress();
             useJumpHost = true;
         }
 
@@ -123,13 +123,13 @@ public class SshOptions {
 
         if (useJumpHost) {
             String KEY_FILE = "";
-            String REMOTE_HOST = jumpHost.getPublicIpAddress();
+            String REMOTE_HOST = jumpHost.getGyroInstancePublicIpAddress();
             if (REMOTE_HOST == null) {
                 throw new GyroException("Unable to determine the public IP address of the jump host.");
             }
 
             if (user != null) {
-                REMOTE_HOST = String.format("%s@%s", user, jumpHost.getPublicIpAddress());
+                REMOTE_HOST = String.format("%s@%s", user, jumpHost.getGyroInstancePublicIpAddress());
             }
 
             if (keyfile != null) {
@@ -216,9 +216,9 @@ public class SshOptions {
             SSH_TABLE.writeRow(
                 GyroCore.ui(),
                 index,
-                instance.getLocation(),
-                reduceString(instance.getName(), 50),
-                !ObjectUtils.isBlank(instance.getHostname()) ? instance.getHostname() : instance.getPrivateIpAddress());
+                instance.getGyroInstanceLocation(),
+                reduceString(instance.getGyroInstanceName(), 50),
+                !ObjectUtils.isBlank(instance.getGyroInstanceHostname()) ? instance.getGyroInstanceHostname() : instance.getGyroInstancePrivateIpAddress());
         }
 
         SSH_TABLE.writeFooter(GyroCore.ui());
@@ -240,7 +240,7 @@ public class SshOptions {
     public GyroInstance pickNearestJumpHost(GyroInstance gyroInstance) throws Exception {
         return getJumpHosts()
             .stream()
-            .filter(o -> o.getLocation().equals(gyroInstance.getLocation()))
+            .filter(o -> o.getGyroInstanceLocation().equals(gyroInstance.getGyroInstanceLocation()))
             .findFirst()
             .orElse(randomJumpHost());
     }
