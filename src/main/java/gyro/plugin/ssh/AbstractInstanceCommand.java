@@ -112,7 +112,7 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
             fileScopes = current.getFileScopes();
         }
 
-        for (Resource resource : current.findResources()) {
+        for (Resource resource : current.findSortedResources()) {
             boolean scoped = fileScopes.contains(DiffableInternals.getScope(resource).getFileScope());
 
             if (GyroInstance.class.isAssignableFrom(resource.getClass())) {
