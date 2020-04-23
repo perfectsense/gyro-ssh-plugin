@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    api 'gyro:gyro-core:0.99.2-SNAPSHOT'
+    api 'gyro:gyro-core:0.99.2'
 
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
 }
