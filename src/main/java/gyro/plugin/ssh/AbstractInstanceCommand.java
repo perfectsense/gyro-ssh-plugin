@@ -27,8 +27,8 @@ import gyro.core.resource.DiffableType;
 import gyro.core.resource.Resource;
 import gyro.core.scope.FileScope;
 import gyro.core.scope.RootScope;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Option;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,10 +44,10 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
 
     private List<GyroInstance> instances = new ArrayList<>();
 
-    @Option(name = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
+    @Option(names = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
     public boolean refresh;
 
-    @Arguments
+    @Parameters(description = "Gyro config files.")
     private List<String> files;
 
     protected RootScope current;

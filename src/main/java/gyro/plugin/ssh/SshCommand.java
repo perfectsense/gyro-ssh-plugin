@@ -18,36 +18,28 @@ package gyro.plugin.ssh;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
-import gyro.core.GyroException;
 import gyro.core.GyroInstance;
-import gyro.core.resource.Diffable;
-import gyro.core.resource.DiffableInternals;
-import gyro.core.scope.DiffableScope;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ArgGroup;
 
-@Command(name = "ssh", description = "SSH to a running instance.")
+@Command(name = "ssh", description = "SSH to a running instance.",mixinStandardHelpOptions = true)
 public class SshCommand extends AbstractInstanceCommand {
 
-    @Option(name = { "-e", "--execute" }, description = "Command to execute on host(s).")
+    @Option(names = { "-e", "--execute" }, description = "Command to execute on host(s).")
     public String command;
 
-    @Option(name = { "-c", "--continue" }, description = "Ignore exit code and continue running -e command to run on all hosts.")
+    @Option(names = { "-c", "--continue" }, description = "Ignore exit code and continue running -e command to run on all hosts.")
     public boolean force;
 
-    @Option(name = { "--tmux" }, description = "Open a tmux session with each host.")
+    @Option(names = { "--tmux" }, description = "Open a tmux session with each host.")
     public boolean useTmux;
 
-    @Inject
+    @ArgGroup(exclusive = false)
     public SshOptions sshOptions;
 
     public String command() {

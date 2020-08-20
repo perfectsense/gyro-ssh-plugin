@@ -21,9 +21,9 @@ import java.util.List;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroInstance;
-import io.airlift.airline.Command;
+import picocli.CommandLine.Command;
 
-@Command(name = "list", description = "List instances found in provided config file.")
+@Command(name = "list", description = "List instances found in provided config file.", mixinStandardHelpOptions = true)
 public class ListCommand extends AbstractInstanceCommand {
 
     private static final Table LIST_TABLE = new Table()

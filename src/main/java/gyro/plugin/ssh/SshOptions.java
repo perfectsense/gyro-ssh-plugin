@@ -24,18 +24,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
-import gyro.core.resource.Diffable;
-import gyro.core.resource.DiffableInternals;
-import io.airlift.airline.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Option;
 
 public class SshOptions {
 
@@ -47,19 +43,19 @@ public class SshOptions {
         .addColumn("Name", 54)
         .addColumn("Hostname", 55);
 
-    @Option(name = {"-u", "--user"}, description = "User to log in as.")
+    @Option(names = {"-u", "--user"}, description = "User to log in as.")
     public String user;
 
-    @Option(name = {"-k", "--keyfile"}, description = "Private key to use (i.e. ssh -i ~/.ssh/id_rsa).")
+    @Option(names = {"-k", "--keyfile"}, description = "Private key to use (i.e. ssh -i ~/.ssh/id_rsa).")
     public String keyfile;
 
-    @Option(name = {"-q", "--quiet"}, description = "Quiet mode.")
+    @Option(names = {"-q", "--quiet"}, description = "Quiet mode.")
     public boolean quiet;
 
-    @Option(name = {"-o", "--options"}, description = "Options pass to ssh -o option.")
+    @Option(names = {"-o", "--options"}, description = "Options pass to ssh -o option.")
     public String options;
 
-    @Option(name = { "-j", "--jumphost" }, description = "Jump through jump host.")
+    @Option(names = { "-j", "--jumphost" }, description = "Jump through jump host.")
     public boolean useJumpHost;
 
     private List<GyroInstance> jumpHosts = new ArrayList<>();
