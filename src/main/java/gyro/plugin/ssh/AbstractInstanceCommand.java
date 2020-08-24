@@ -16,6 +16,16 @@
 
 package gyro.plugin.ssh;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
@@ -30,16 +40,6 @@ import gyro.core.scope.RootScope;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public abstract class AbstractInstanceCommand extends AbstractCommand {
 
     private List<GyroInstance> instances = new ArrayList<>();
@@ -47,7 +47,7 @@ public abstract class AbstractInstanceCommand extends AbstractCommand {
     @Option(names = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
     public boolean refresh;
 
-    @Parameters(description = "Gyro config files.")
+    @Parameters(description = "gyro configuration files to look for instances in.")
     private List<String> files;
 
     protected RootScope current;

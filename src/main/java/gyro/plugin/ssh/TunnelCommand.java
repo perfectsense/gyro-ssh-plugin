@@ -16,7 +16,7 @@
 
 package gyro.plugin.ssh;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +24,24 @@ import java.util.List;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
+import gyro.core.command.VersionCommand;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "tunnel", description = "Tunnel to a running instance.", mixinStandardHelpOptions = true)
+@Command(name = "tunnel",
+    header = "Tunnel to a running instance.",
+    synopsisHeading = "%n",
+    descriptionHeading = "%nDescription:%n%n",
+    description = "Tunnel to instance defined in gyro configuration using ssh tunnel. If multiple instances are found "
+        + "a list will be presented to chose from will. If only one instance is found it will be connected to "
+        + "automatically.",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100,
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionCommand.class
+)
 public class TunnelCommand extends AbstractInstanceCommand {
 
     private static final Table TUNNEL_TABLE = new Table().

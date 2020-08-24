@@ -23,11 +23,24 @@ import java.util.List;
 
 import gyro.core.GyroCore;
 import gyro.core.GyroInstance;
+import gyro.core.command.VersionCommand;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ArgGroup;
 
-@Command(name = "ssh", description = "SSH to a running instance.",mixinStandardHelpOptions = true)
+@Command(name = "ssh",
+    header = "SSH to a running instance.",
+    synopsisHeading = "%n",
+    descriptionHeading = "%nDescription:%n%n",
+    description = "Connect to instances defined in gyro configuration using ssh. If multiple instances are found "
+        + "a list will be presented to chose from will. If only one instance is found it will be connected to "
+        + "automatically.",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100,
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionCommand.class
+)
 public class SshCommand extends AbstractInstanceCommand {
 
     @Option(names = { "-e", "--execute" }, description = "Command to execute on host(s).")
