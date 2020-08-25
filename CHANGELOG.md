@@ -1,6 +1,8 @@
 CHANGELOG
 =========
 
+## 0.99.4 (Unreleased)
+
 ## 0.99.3 (25th August, 2020)
 
 ENHANCEMENTS:
