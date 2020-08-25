@@ -18,36 +18,41 @@ package gyro.plugin.ssh;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
-import gyro.core.GyroException;
 import gyro.core.GyroInstance;
-import gyro.core.resource.Diffable;
-import gyro.core.resource.DiffableInternals;
-import gyro.core.scope.DiffableScope;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import gyro.core.command.VersionCommand;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-@Command(name = "ssh", description = "SSH to a running instance.")
+@Command(name = "ssh",
+    header = "SSH to a running instance.",
+    synopsisHeading = "%n",
+    descriptionHeading = "%nDescription:%n%n",
+    description = "Connect to instances defined in gyro configuration using ssh. If multiple instances are found "
+        + "a list will be presented to chose from will. If only one instance is found it will be connected to "
+        + "automatically.",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100,
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionCommand.class
+)
 public class SshCommand extends AbstractInstanceCommand {
 
-    @Option(name = { "-e", "--execute" }, description = "Command to execute on host(s).")
+    @Option(names = { "-e", "--execute" }, description = "Command to execute on host(s).")
     public String command;
 
-    @Option(name = { "-c", "--continue" }, description = "Ignore exit code and continue running -e command to run on all hosts.")
+    @Option(names = { "-c", "--continue" }, description = "Ignore exit code and continue running -e command to run on all hosts.")
     public boolean force;
 
-    @Option(name = { "--tmux" }, description = "Open a tmux session with each host.")
+    @Option(names = { "--tmux" }, description = "Open a tmux session with each host.")
     public boolean useTmux;
 
-    @Inject
+    @ArgGroup(exclusive = false)
     public SshOptions sshOptions;
 
     public String command() {

@@ -16,6 +16,16 @@
 
 package gyro.plugin.ssh;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
@@ -27,27 +37,17 @@ import gyro.core.resource.DiffableType;
 import gyro.core.resource.Resource;
 import gyro.core.scope.FileScope;
 import gyro.core.scope.RootScope;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Option;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 public abstract class AbstractInstanceCommand extends AbstractCommand {
 
     private List<GyroInstance> instances = new ArrayList<>();
 
-    @Option(name = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
+    @Option(names = { "-r", "--refresh" }, description = "Refresh instance data from the cloud provider.")
     public boolean refresh;
 
-    @Arguments
+    @Parameters(description = "gyro configuration files to look for instances in.")
     private List<String> files;
 
     protected RootScope current;

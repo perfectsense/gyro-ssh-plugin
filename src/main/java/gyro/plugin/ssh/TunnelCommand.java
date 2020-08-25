@@ -16,9 +16,7 @@
 
 package gyro.plugin.ssh;
 
-import javax.inject.Inject;
-
-import java.awt.*;
+import java.awt.Desktop;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +24,24 @@ import java.util.List;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import gyro.core.command.VersionCommand;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-@Command(name = "tunnel", description = "Tunnel to a running instance.")
+@Command(name = "tunnel",
+    header = "Tunnel to a running instance.",
+    synopsisHeading = "%n",
+    descriptionHeading = "%nDescription:%n%n",
+    description = "Tunnel to instance defined in gyro configuration using ssh tunnel. If multiple instances are found "
+        + "a list will be presented to chose from will. If only one instance is found it will be connected to "
+        + "automatically.",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100,
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionCommand.class
+)
 public class TunnelCommand extends AbstractInstanceCommand {
 
     private static final Table TUNNEL_TABLE = new Table().
@@ -41,16 +53,16 @@ public class TunnelCommand extends AbstractInstanceCommand {
             addColumn("State", 12).
             addColumn("Hostname", 65);
 
-    @Option(name = {"--localPort"}, description = "Local port to listen on.")
+    @Option(names = "--localPort", description = "Local port to listen on.")
     public Integer localPort;
 
-    @Option(name = {"--remotePort"}, description = "Remote port to connect to.")
+    @Option(names = "--remotePort", description = "Remote port to connect to.")
     public Integer remotePort;
 
-    @Option(name = {"--nobrowser"}, description = "Don't open browser automatically.")
+    @Option(names = "--nobrowser", description = "Don't open browser automatically.")
     public boolean noBrowser;
 
-    @Inject
+    @ArgGroup(exclusive = false)
     public SshOptions sshOptions;
 
     @Override

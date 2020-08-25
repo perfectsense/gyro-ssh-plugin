@@ -21,9 +21,18 @@ import java.util.List;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroInstance;
-import io.airlift.airline.Command;
+import gyro.core.command.VersionCommand;
+import picocli.CommandLine.Command;
 
-@Command(name = "list", description = "List instances found in provided config file.")
+@Command(name = "list",
+    header = "List instances found in provided config file.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100,
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionCommand.class
+)
 public class ListCommand extends AbstractInstanceCommand {
 
     private static final Table LIST_TABLE = new Table()
