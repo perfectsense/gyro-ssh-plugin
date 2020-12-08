@@ -1,3 +1,5 @@
+version: 0.1
+
 sudo: false
 
 if: type = push
