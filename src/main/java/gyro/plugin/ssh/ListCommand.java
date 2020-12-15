@@ -38,7 +38,7 @@ public class ListCommand extends AbstractInstanceCommand {
     private static final Table LIST_TABLE = new Table()
         .addColumn("Instance ID", 20)
         .addColumn("State", 12)
-        .addColumn("Launch Date", 20)
+        .addColumn("Launch Date", 30)
         .addColumn("Hostname", 65);
 
     @Override
