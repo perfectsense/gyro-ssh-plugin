@@ -1,9 +1,13 @@
 CHANGELOG
 =========
 
-## 0.99.4 (Unreleased)
+## 1.0.0 (December 17th, 2020)
 
-## 0.99.3 (25th August, 2020)
+ENHANCEMENTS:
+
+* [17](https://github.com/perfectsense/gyro-ssh-plugin/issues/17): Add `Launch Date` column to instance list.
+
+## 0.99.3 (August 25th, 2020)
 
 ENHANCEMENTS:
 
