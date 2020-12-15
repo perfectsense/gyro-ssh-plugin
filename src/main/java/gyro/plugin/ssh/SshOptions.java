@@ -41,6 +41,7 @@ public class SshOptions {
         .addColumn("#", 3)
         .addColumn("Location", 10)
         .addColumn("Name", 54)
+        .addColumn("Launch Date", 30)
         .addColumn("Hostname", 55);
 
     @Option(names = {"-u", "--user"}, description = "User to log in as.")
@@ -214,6 +215,7 @@ public class SshOptions {
                 index,
                 instance.getGyroInstanceLocation(),
                 reduceString(instance.getGyroInstanceName(), 50),
+                instance.getGyroInstanceLaunchDate(),
                 !ObjectUtils.isBlank(instance.getGyroInstanceHostname()) ? instance.getGyroInstanceHostname() : instance.getGyroInstancePrivateIpAddress());
         }
 
