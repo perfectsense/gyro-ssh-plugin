@@ -5,12 +5,9 @@
 [![Apache License 2.0](https://img.shields.io/github/license/perfectsense/gyro-ssh-plugin)](https://github.com/perfectsense/gyro-ssh-plugin/blob/master/LICENSE)
 
 
-The **SSH Plugin for Gyro** enables users to access virtual machines managed by gyro seamlessly.
+The **SSH Plugin for Gyro** enables users to ssh into virtual machines managed by gyro seamlessly.
 
-Features: [WIP]
-* List - See what how many virtual machines are up in a project and what are their status.
-* SSH - Ssh into one of the listed virtual machines.
-* Tunnel - Tunnel into one of the listed virtual machines.
+
 
 To learn more about Gyro see [getgyro.io](https://getgyro.io) and [gyro](https://github.com/perfectsense/gyro). 
 
@@ -30,9 +27,11 @@ Load the SSH plugin in your project by consuming it as a `plugin` directive in y
 
 #### Configuration ####
 
-If want to access a virtual machine that is behind a private network and, you don't want to use a vpn then, jump hosts can cover that for you.
+The gyro-ssh-plugin works out of the box to access Virtual machines, unless they are behind a private network.
 
-All you need is to specify a virtual machine that is accessible and has access to the private hosts you will need to access.
+To access virtual machines residing behind a private network without using a vpn, jum hosts needs to be configured.
+
+Specify one or more virtual machines that are accessible publicly and has access to the private hosts you will need to access.
 
 Provide the jump hosts by defining the following in your `.gyro/init.gyro` file:
 
@@ -47,9 +46,12 @@ Provide the jump hosts by defining the following in your `.gyro/init.gyro` file:
 
 There are 3 commands that you have access to:
 
- - list: Lists all the virtual machines that are available in your project.
- - ssh: Allows you to ssh into a virtual machine, without prior knowledge of the ip of the machine. 
- - tunnel: Allows you to tunnel into a virtual machine, without prior knowledge of the ip of the machine. 
+* list - Lists all the virtual machines that are available in your project.
+
+* ssh - Allows you to ssh into a virtual machine, without prior knowledge of the ip of the machine. 
+
+* tunnel - Allows you to tunnel into a virtual machine, without prior knowledge of the ip of the machine. 
+
 
 If the virtual machine is behind a private network and, the jump-host is configured, then ssh/tunnel wil automatically use one of the jump hosts specified to provide you access to that virtual machine. 
 
