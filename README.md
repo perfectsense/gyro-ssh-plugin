@@ -5,8 +5,7 @@
 [![Apache License 2.0](https://img.shields.io/github/license/perfectsense/gyro-ssh-plugin)](https://github.com/perfectsense/gyro-ssh-plugin/blob/master/LICENSE)
 
 
-The **SSH Plugin for Gyro** enables users to ssh into virtual machines managed by gyro seamlessly.
-
+The **SSH Plugin for Gyro** enables users to ssh into virtual machines managed by Gyro seamlessly. The plugin looks for configured virtual machines inside the Gyro configuration files and then provides you with a list specifying *name*, *location* and *hostname* for each. You can choose to ssh into any of the listed machines and upon selection the plugin will automatically execute the **ssh** cmd with the appropriate options to connect to the virtual machine. The plugin can either look at specific Gyro configurations or all the available configurations of a project to generate the list of virtual machines. 
 
 
 To learn more about Gyro see [getgyro.io](https://getgyro.io) and [gyro](https://github.com/perfectsense/gyro). 
@@ -29,7 +28,7 @@ Load the SSH plugin in your project by consuming it as a `plugin` directive in y
 
 The gyro-ssh-plugin works out of the box to access Virtual machines, unless they are behind a private network.
 
-To access virtual machines residing behind a private network without using a vpn, jum hosts needs to be configured.
+To access virtual machines residing behind a private network without using a vpn, jump hosts needs to be configured.
 
 Specify one or more virtual machines that are accessible publicly and has access to the private hosts you will need to access.
 
